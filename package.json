@@ -6,7 +6,11 @@
     "dotenv": "^16.0.1",
     "env": "^0.0.2",
     "fs": "^0.0.1-security",
+    "get-pixels": "^3.3.3",
+    "jimp": "^0.16.1",
     "npm": "^8.16.0",
+    "png-js": "^1.0.0",
+    "sharp": "^0.30.7",
     "slack-bot": "^1.1.5"
   },
   "scripts": {

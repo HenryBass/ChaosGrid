@@ -57,4 +57,9 @@ function parsemsg(msg) {
     console.log(message)
     await say("'ello!")
   })
+
+  app.message('chaos', async ({ message, say }) => {
+    await say(`grid`);
+  });
+
 })();

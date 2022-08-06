@@ -34,12 +34,18 @@ function ajustnum(n) {
 }
 
 function rickcolor(pixels, row, col) {
-    return (
-        ':' +
-        ajustnum(Math.floor(pixels.get(row, col, 0) / 25.5)) +
-        ajustnum(Math.floor(pixels.get(row, col, 1) / 25.5)) +
-        ajustnum(Math.floor(pixels.get(row, col, 2) / 25.5)) +
-        ':'
+    return rgb2emoji(
+        pixels.get(col, row, 0),
+        pixels.get(col, row, 1),
+        pixels.get(col, row, 2),
+    );
+}
+
+function randomcolor() {
+    return rgb2emoji(
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
     );
 }
 

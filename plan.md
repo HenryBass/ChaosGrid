@@ -1,0 +1,8 @@
+- app
+  - board
+    - create
+    - update
+  - listen for `/chaos`
+    - parse input (`11A` and `#ffffff`)
+    - update board
+    - send new message

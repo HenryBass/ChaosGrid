@@ -8,5 +8,13 @@
     "fs": "^0.0.1-security",
     "npm": "^8.16.0",
     "slack-bot": "^1.1.5"
+  },
+  "scripts": {
+    "lt": "lt --port 24569 --subdomain chaosgrid",
+    "dev": "nodemon index.js"
+  },
+  "devDependencies": {
+    "localtunnel": "^2.0.2",
+    "nodemon": "^2.0.19"
   }
 }

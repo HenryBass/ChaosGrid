@@ -47,18 +47,26 @@ function parsemsg(msg) {
 
 /* Add functionality here */
 
+function createMessage() {
+  // TODO: stuff 
+  return 'hi'
+}
+
 (async () => {
   // Start the app
-  await app.start(process.env.PORT || 3000);
+  await app.start(24569);
 
   console.log('Running')
 
-  app.command('/ChaosGrid', async ({ message }) => {
-    console.log(message)
-    await say("'ello!")
+  app.command('/chaosgrid', async ({ body, ack , say}) => {
+    await ack()
+    console.log(body.text)
+    await say(createMessage())
   })
 
-  app.message('chaos', async ({ message, say }) => {
+  app.message('chaos', async ({ message, say , ack}) => {
+
+    await ack()
     await say(`grid`);
   });
 

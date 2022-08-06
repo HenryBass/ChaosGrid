@@ -21,8 +21,8 @@ let board = [];
 sharp('rick.jpg')
     .resize(11, 26)
     .toFile('lowrick.jpg', function (err, info) {
-        console.log(err, ' - Error');
-        console.log(info, ' - Info');
+        // console.log(err, ' - Error');
+        // console.log(info, ' - Info');
     });
 
 function ajustnum(n) {
@@ -68,14 +68,13 @@ function initBoard() {
         console.log('got pixels', pixels.shape.slice());
         board = [];
 
-        console.log(pixels.get(0, 0, 0));
-
         for (let i = 0; i < 26; i++) {
             board.push([]);
             for (let j = 0; j < 11; j++) {
                 board[i].push(rickcolor(pixels, i, j));
             }
         }
+
         // console.log(board);
     });
 }
@@ -90,7 +89,7 @@ const app = new App({
 function parsemsg(msg) {
     // message format: row col r g b OR row col random
 
-    msg = msg.split(' ');
+    msg = msg.split(' ').filter((x) => x); // remove extra spaces
 
     if (msg.length !== 5 && msg.length !== 3) {
         throw new Error('Invalid message');
@@ -98,8 +97,8 @@ function parsemsg(msg) {
 
     // row is always a number
     let row = parseInt(msg[0]);
-    // col is always a letter
-    let col = msg[1].charCodeAt(0) - 65;
+    // col is always a letter, but could be either case, make it a number
+    let col = msg[1].toUpperCase().charCodeAt(0) - 65;
 
     // check in bounds
     if (row < 0 || row > maxRows) {
@@ -129,15 +128,13 @@ function parsemsg(msg) {
         throw new Error('Blue out of bounds');
     }
 
-    console.log(row, col);
-
     board[row][col] = rgb2emoji(red, green, blue);
 }
 
 /* Add functionality here */
 
 function createTitle() {
-    let title = '*Chaos Grid Game*';
+    let title = '*Chaos Grid - /chaoshelp*';
 
     return title;
 }
@@ -172,7 +169,7 @@ function updaterec() {
     app.command('/chaosgrid', async ({body, ack, say}) => {
         await ack();
 
-        console.log(body);
+        // console.log(body);
 
         let d = new Date();
         if (body.text == '') {

@@ -20,6 +20,7 @@ const helpText = `Please enter a cell and color in the form of /chaosgrid <row> 
 
 let recents = [];
 let board = [];
+let rawBoard = [];
 
 sharp('rick.jpg')
     .resize(11, 26)
@@ -70,15 +71,22 @@ function initBoard() {
         }
         console.log('got pixels', pixels.shape.slice());
         board = [];
+        rawBoard = [];
 
         for (let i = 0; i < 26; i++) {
             board.push([]);
+            rawBoard.push([]);
             for (let j = 0; j < 11; j++) {
                 board[i].push(rickcolor(pixels, i, j));
+                rawBoard[i].push([
+                    pixels.get(j, i, 0),
+                    pixels.get(j, i, 1),
+                    pixels.get(j, i, 2),
+                ]);
             }
         }
 
-        // console.log(board);
+        // console.log(rawBoard);
     });
 }
 
@@ -99,26 +107,74 @@ initBoard();
 const app = new App({
     signingSecret,
     token,
-    // customRoutes: [
-    //     {
-    //         path: '/speech',
-    //         method: ['GET'],
-    //         handler(req, res) {
-    //             try {
-    //                 res.setHeader('Content-Type', 'text/html');
-    //                 // damn, good one!
-    //                 fs.createReadStream('public/index.html').pipe(res, {
-    //                     end: true,
-    //                 });
-    //             } catch (err) {
-    //                 console.error(err);
-    //             }
-    //         },
-    //     },
-    // ],
+    customRoutes: [
+        {
+            path: '/index',
+            method: ['GET'],
+            handler(req, res) {
+                try {
+                    res.setHeader('Content-Type', 'text/html');
+                    // damn, good one!
+                    fs.createReadStream('public/index.html').pipe(res, {
+                        end: true,
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+        },
+        {
+            path: '/index2',
+            method: ['GET'],
+            handler(req, res) {
+                try {
+                    res.setHeader('Content-Type', 'text/html');
+                    // damn, good one!
+                    fs.createReadStream('public/index2.html').pipe(res, {
+                        end: true,
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+        },
+        {
+            path: '/board',
+            method: ['GET'],
+            handler(req, res) {
+                try {
+                    res.setHeader('Content-Type', 'text/html');
+                    // damn, good one!
+                    fs.createReadStream('public/board.html').pipe(res, {
+                        end: true,
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+        },
+        {
+            path: '/boardData',
+            method: ['GET'],
+            handler(req, res) {
+                try {
+                    res.setHeader('Content-Type', 'text/html');
+                    // damn, good one!
+                    const rb = JSON.stringify(rawBoard);
+
+                    // rb.createReadStream().pipe(res, {end: true});
+
+                    res.write(rb);
+                    res.end();
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+        },
+    ],
 });
 
-function parsemsg(msg) {
+async function parsemsg(msg, respond) {
     // message format: row col r g b OR row col random
 
     msg = msg.split(' ').filter((x) => x); // remove extra spaces
@@ -160,7 +216,48 @@ function parsemsg(msg) {
         throw new Error('Blue out of bounds');
     }
 
+    let random = Math.floor(Math.random() * 100);
+
+    if (random % 13 === 0) {
+        let row2 = row - 1;
+        if (row2 >= 0) {
+            board[row2][col] = rgb2emoji(255, 255, 255);
+            rawBoard[row2][col] = [255, 255, 255];
+        }
+        let row3 = row + 1;
+        if (row3 < board.length) {
+            board[row3][col] = rgb2emoji(255, 255, 255);
+            rawBoard[row3][col] = [255, 255, 255];
+        }
+        let col2 = col - 1;
+        if (col2 >= 0) {
+            board[row][col2] = rgb2emoji(255, 255, 255);
+            rawBoard[row][col2] = [255, 255, 255];
+        }
+        let col3 = col + 1;
+        if (col3 < board[row].length) {
+            board[row][col3] = rgb2emoji(255, 255, 255);
+            rawBoard[row][col3] = [255, 255, 255];
+        }
+        await respond({
+            text: 'Neighbors are now white',
+            response_type: 'ephemeral',
+        });
+    } else if (random % 7 === 0) {
+        for (const i in board) {
+            for (const j in board[i]) {
+                board[i][j] = rgb2emoji(255, 255, 255);
+                rawBoard[i][j] = [255, 255, 255];
+            }
+        }
+        await respond({
+            text: 'Flashbang',
+            response_type: 'ephemeral',
+        });
+    }
+
     board[row][col] = rgb2emoji(red, green, blue);
+    rawBoard[row][col] = [red, green, blue];
 }
 
 /* Add functionality here */

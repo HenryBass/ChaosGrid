@@ -9,27 +9,27 @@ const sharp = require('sharp');
 // ---I2hlbmVyZXJleQ==---
 
 const colors = {
-    PrismaticVermilionCardinalRenewalAirbnbAlabamaRed: [202, 0, 33],
-    BasicallyJustRed: [225, 0, 33],
-    Red: [225, 0, 0],
-    Green: [225, 255, 0],
-    Blue: [225, 0, 255],
-    CelesteTheColor: [178, 255, 255],
-    CelesteThePerson: [178, 255, 255],
-    Periwinkle: [178, 255, 255],
-    Bluheheh: [255, 0, 0],
-    IfYourUrineIsThisColorSeeADoctor: [57, 255, 20],
-    GreenishGreen: [0, 255, 0],
-    PakistanGreen: [0, 102, 0],
-    Purpureus: [154, 78, 174],
-    RedAndBlueButNotPurple: [255, 0, 255],
-    DrinkMoreWaterPiss: [218, 165, 32],
-    StillDrinkMoreWaterPiss: [253, 255, 0],
-    GoodJobYouDrankEnoughWaterPiss: [255, 255, 224],
-    ItsJustOrange: [240, 97, 5],
-    Null: [254, 255, 255],
-    BrokenRedLED: [50, 0, 0],
-    IsItDirtOrIsMyScreenBroken: [0, 0, 0],
+    prismaticvermilioncardinalrenewalairbnbalabamared: [202, 0, 33],
+    basicallyjustred: [225, 0, 33],
+    RedYesItsCaseSensetiveAndThisIsntRed: [0, 255, 255],
+    green: [225, 255, 0],
+    blue: [225, 0, 255],
+    celestethecolor: [178, 255, 255],
+    celestetheperson: [178, 255, 255],
+    periwinklebecauseitsoundsfunny: [178, 255, 255],
+    bluheheh: [255, 0, 0],
+    ifyoururineisthiscolorseeadoctor: [57, 255, 20],
+    greenishgreen: [0, 255, 0],
+    pakistangreen: [0, 102, 0],
+    purpureus: [154, 78, 174],
+    redandbluebutnotpurple: [255, 0, 255],
+    drinkmorewaterpiss: [218, 165, 32],
+    stilldrinkmorewaterpiss: [253, 255, 0],
+    goodjobyoudrankenoughwaterpiss: [255, 255, 224],
+    itsjustorange: [240, 97, 5],
+    weneededawhite: [254, 255, 255],
+    brokenredled: [50, 0, 0],
+    isitdirtorismyscreenbroken: [0, 0, 0],
 };
 
 const colornames = Object.keys(colors);
@@ -192,11 +192,17 @@ async function parsemsg(msg, respond) {
     if (col < 0 || col > maxCols) {
         throw new Error('Column out of bounds');
     }
+
+    // see if color is a valid color
+    if (!colornames.includes(msg[2])) {
+        throw new Error('Invalid color');
+    }
+
     console.log(msg, msg.length, msg[2], colors[msg[2]]);
 
     let random = Math.floor(Math.random() * 100);
 
-    if (random % 13 === 0) {
+    /*if (random % 13 === 0) {
         let row2 = row - 1;
         if (row2 >= 0) {
             board[row2][col] = rgb2emoji(255, 255, 255);
@@ -220,8 +226,8 @@ async function parsemsg(msg, respond) {
         await respond({
             text: 'Neighbors are now white for no reason',
             response_type: 'ephemeral',
-        });
-    } else if (random > 90) {
+        });*/
+    if (random > 90) {
         await respond(
             createMessage(flash) +
                 '\n-FLASHBANG- Something went horribly wrong as you tried to place a pixel resulting in whatever this is (your eyes bleed)',

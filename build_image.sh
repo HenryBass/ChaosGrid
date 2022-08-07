@@ -13,4 +13,4 @@ docker manifest create sconaway/chaosgrid:latest sconaway/chaosgrid:amd64-latest
 docker manifest annotate --arch amd64 sconaway/chaosgrid:latest sconaway/chaosgrid:amd64-latest
 docker manifest annotate --arch arm64 sconaway/chaosgrid:latest sconaway/chaosgrid:arm64-latest
 
-docker manifest push sconaway/chaosgrid
+docker manifest push --purge sconaway/chaosgrid

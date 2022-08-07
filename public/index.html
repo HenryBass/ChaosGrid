@@ -33,7 +33,7 @@
 
         // every second, poll "/boardData" and draw the board
         const colorThings = () => {
-            fetch('https://chaosgrid.loca.lt/boardData')
+            fetch('/boardData')
                 .then((res) => res.json())
                 .then((data) => {
                     for (let i = 0; i < data.length; i++) {

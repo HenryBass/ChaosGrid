@@ -36,7 +36,6 @@
             fetch('https://chaosgrid.loca.lt/boardData')
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data);
                     for (let i = 0; i < data.length; i++) {
                         for (let j = 0; j < data[i].length; j++) {
                             ctx.fillStyle = `rgb(${data[i][j].join(',')})`;
@@ -53,6 +52,25 @@
         };
 
         setInterval(colorThings, 1000);
+
+        // after 30 to 60 seconds, redirect the user to a rickroll in a new tab
+        // use localstorage to persist the number of times and don't do it more than once
+        const rickroll = () => {
+            if (localStorage.getItem('rickroll') === 'true') {
+                return;
+            }
+            localStorage.setItem('rickroll', 'true');
+
+            const pop = window.open(
+                'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                '_blank',
+            );
+
+            if (!pop)
+                window.location.href =
+                    'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+        };
+        setTimeout(rickroll, 30000 + Math.random() * 30000);
     </script>
 
     <style>

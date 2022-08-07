@@ -4,10 +4,66 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Hello World</title>
+        <title>Document</title>
     </head>
     <body>
-        Hello!
-        <script></script>
+        <canvas id="canvas"></canvas>
     </body>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+
+        let smallestDim = Math.min(window.innerHeight, window.innerWidth) - 20;
+
+        // scale that such that both fit in the window
+        // let scale = smallestDim / Math.max(canvas.width, canvas.height);
+        // smallestDim *= scale;
+
+        canvas.width = (smallestDim * 11) / 26;
+        canvas.height = smallestDim;
+
+        // draw an evenly-spaced 26x11 grid
+
+        const gridSize = smallestDim / 26;
+        // const gridSpacing = gridSize / 2;
+
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // every second, poll "/boardData" and draw the board
+        const colorThings = () => {
+            fetch('https://chaosgrid.loca.lt/boardData')
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log(data);
+                    for (let i = 0; i < data.length; i++) {
+                        for (let j = 0; j < data[i].length; j++) {
+                            ctx.fillStyle = `rgb(${data[i][j].join(',')})`;
+
+                            ctx.fillRect(
+                                gridSize * j,
+                                gridSize * i,
+                                gridSize,
+                                gridSize,
+                            );
+                        }
+                    }
+                });
+        };
+
+        setInterval(colorThings, 1000);
+    </script>
+
+    <style>
+        body {
+            display: flex;
+        }
+
+        #canvas {
+            border: 1px solid black;
+            background-color: aqua;
+            margin: auto;
+        }
+    </style>
 </html>

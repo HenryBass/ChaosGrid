@@ -1,5 +1,7 @@
 const {App} = require('@slack/bolt');
 const getPixels = require('get-pixels');
+// const path = require('path');
+// const fs = require('fs');
 
 require('dotenv').config();
 const sharp = require('sharp');
@@ -10,7 +12,7 @@ const signingSecret = process.env.SIGNING_SECRET;
 const maxRows = 26;
 const maxCols = 11;
 
-const ratelimit = false;
+const ratelimit = true;
 
 const helpText =
     'Please enter a cell and color in the form of `/chaosgrid <row> <col> <r> <g> <b>`';
@@ -84,6 +86,23 @@ initBoard();
 const app = new App({
     signingSecret,
     token,
+    // customRoutes: [
+    //     {
+    //         path: '/speech',
+    //         method: ['GET'],
+    //         handler(req, res) {
+    //             try {
+    //                 res.setHeader('Content-Type', 'text/html');
+    //                 // damn, good one!
+    //                 fs.createReadStream('public/index.html').pipe(res, {
+    //                     end: true,
+    //                 });
+    //             } catch (err) {
+    //                 console.error(err);
+    //             }
+    //         },
+    //     },
+    // ],
 });
 
 function parsemsg(msg) {
@@ -166,21 +185,22 @@ function updaterec() {
 
     console.log('Running');
 
-    app.command('/chaosgrid', async ({body, ack, say}) => {
+    app.command('/chaosgrid', async ({body, ack, say, respond}) => {
         await ack();
 
         // console.log(body);
 
         let d = new Date();
         if (body.text == '') {
-            await say(`${createTitle()} \n${createMessage()}`);
-            await say(helpText);
+            await respond(`${createTitle()} \n${createMessage()}`);
+            await respond({text: helpText, response_type: 'ephemeral'});
             return;
         }
         if (ratelimit && recents.some((recent) => recent[0] === body.user_id)) {
-            await say(
-                'You can only send a message once every 59.9999999 seconds',
-            );
+            await respond({
+                text: 'You can only send a message once every 59.9999999 seconds',
+                response_type: 'ephemeral',
+            });
             return;
         }
 
@@ -189,11 +209,20 @@ function updaterec() {
         try {
             parsemsg(body.text);
         } catch (error) {
-            await say(`Zoinks, something went wrong: ${error}.\n\n${helpText}`);
+            await respond({
+                text: `Zoinks, something went wrong: ${error}.\n\n${helpText}`,
+                response_type: 'ephemeral',
+            });
             return;
         }
 
         await say(`${createTitle()} \n${createMessage()}`);
+    });
+
+    app.command('/chaoshelp', async ({body, ack, say}) => {
+        await ack();
+
+        await respond({text: helpText, response_type: 'ephemeral'});
     });
 
     app.message('chaos', async ({message, say, ack}) => {

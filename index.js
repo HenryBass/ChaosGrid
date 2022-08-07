@@ -6,10 +6,14 @@ const fs = require('fs');
 require('dotenv').config();
 const sharp = require('sharp');
 
+// ---I2hlbmVyZXJleQ==---
+
 const colors = {
     PrismaticVermilionCardinalRenewalAirbnbAlabamaRed: [202, 0, 33],
-    NormalRed: [225, 0, 33],
-    EvenMoreNormalRed: [225, 0, 0],
+    BasicallyJustRed: [225, 0, 33],
+    Red: [225, 0, 0],
+    Green: [225, 255, 0],
+    Blue: [225, 0, 255],
     CelesteTheColor: [178, 255, 255],
     CelesteThePerson: [178, 255, 255],
     Periwinkle: [178, 255, 255],
@@ -23,7 +27,12 @@ const colors = {
     StillDrinkMoreWaterPiss: [253, 255, 0],
     GoodJobYouDrankEnoughWaterPiss: [255, 255, 224],
     ItsJustOrange: [240, 97, 5],
+    Null: [254, 255, 255],
+    BrokenRedLED: [50, 0, 0],
+    IsItDirtOrIsMyScreenBroken: [0, 0, 0],
 };
+
+const colornames = Object.keys(colors);
 
 const token = process.env.TOKEN;
 const signingSecret = process.env.SIGNING_SECRET;
@@ -34,9 +43,11 @@ let flashtime = 0;
 let flash;
 const ratelimit = true;
 
-const helpText = `Please enter a cell and color in the form of \`/chaosgrid <row> <col> <r> <g> <b>\`\n
+const helpText =
+    `Please enter a cell and color in the form of \`/chaosgrid <row> <col> <color>\`\n
     Other Commands:\n
-    \`/chaosflashbang\` (fun)`;
+    \`/chaosflashbang\` (fun)\n
+    COLORS:\n` + colornames.join('\n');
 
 let recents = [];
 let board = [];
@@ -129,12 +140,12 @@ const app = new App({
     token,
     customRoutes: [
         {
-            path: '/index',
+            path: '/',
             method: ['GET'],
             handler(req, res) {
                 try {
                     res.setHeader('Content-Type', 'text/html');
-                    // damn, good one!
+
                     fs.createReadStream('public/index.html').pipe(res, {
                         end: true,
                     });
@@ -148,13 +159,9 @@ const app = new App({
             method: ['GET'],
             handler(req, res) {
                 try {
-                    res.setHeader('Content-Type', 'text/html');
-                    // damn, good one!
-                    const rb = JSON.stringify(rawBoard);
+                    res.setHeader('Content-Type', 'text/json');
+                    res.write(JSON.stringify(rawBoard));
 
-                    // rb.createReadStream().pipe(res, {end: true});
-
-                    res.write(rb);
                     res.end();
                 } catch (err) {
                     console.error(err);
@@ -165,11 +172,11 @@ const app = new App({
 });
 
 async function parsemsg(msg, respond) {
-    // message format: row col r g b OR row col random
+    // message format: row col color
 
     msg = msg.split(' ').filter((x) => x); // remove extra spaces
 
-    if (msg.length !== 5 && msg.length !== 3) {
+    if (msg.length !== 3) {
         throw new Error('Invalid message');
     }
 
@@ -185,26 +192,7 @@ async function parsemsg(msg, respond) {
     if (col < 0 || col > maxCols) {
         throw new Error('Column out of bounds');
     }
-
-    if (msg.length === 3) {
-        // random color
-        board[row][col] = randomcolor();
-        return;
-    }
-
-    let red = parseInt(msg[2]);
-    let green = parseInt(msg[3]);
-    let blue = parseInt(msg[4]);
-
-    if (red < 0 || red > 255) {
-        throw new Error('Red out of bounds');
-    }
-    if (green < 0 || green > 255) {
-        throw new Error('Green out of bounds');
-    }
-    if (blue < 0 || blue > 255) {
-        throw new Error('Blue out of bounds');
-    }
+    console.log(msg, msg.length, msg[2], colors[msg[2]]);
 
     let random = Math.floor(Math.random() * 100);
 
@@ -230,24 +218,26 @@ async function parsemsg(msg, respond) {
             rawBoard[row][col3] = [255, 255, 255];
         }
         await respond({
-            text: 'Neighbors are now white',
+            text: 'Neighbors are now white for no reason',
             response_type: 'ephemeral',
         });
-    } else if (random % 7 === 0) {
-        for (const i in board) {
-            for (const j in board[i]) {
-                board[i][j] = rgb2emoji(255, 255, 255);
-                rawBoard[i][j] = [255, 255, 255];
-            }
-        }
-        await respond({
-            text: 'Flashbang',
-            response_type: 'ephemeral',
-        });
+    } else if (random > 90) {
+        await respond(
+            createMessage(flash) +
+                '\n-FLASHBANG- Something went horribly wrong as you tried to place a pixel resulting in whatever this is (your eyes bleed)',
+        );
     }
 
-    board[row][col] = rgb2emoji(red, green, blue);
-    rawBoard[row][col] = [red, green, blue];
+    board[row][col] = rgb2emoji(
+        colors[msg[2]][0],
+        colors[msg[2]][1],
+        colors[msg[2]][2],
+    );
+    rawBoard[row][col] = [
+        colors[msg[2]][0],
+        colors[msg[2]][1],
+        colors[msg[2]][2],
+    ];
 }
 
 /* Add functionality here */
@@ -259,7 +249,7 @@ function createTitle() {
 }
 
 function createMessage(board) {
-    let msg = '      A    B    C    D    E    F     G    H    I      J     K';
+    let msg = '      A    B    C    D    E     F    G    H    I      J     K';
 
     for (let i = 0; i < 26; i++)
         msg += '\n' + ajustnum(i) + ' ' + board[i].join(' ');
@@ -287,36 +277,43 @@ function updaterec() {
 
     app.command('/chaosgrid', async ({body, ack, say, respond}) => {
         await ack();
-
-        // console.log(body);
-
-        let d = new Date();
-        if (body.text == '') {
-            await respond(`${createTitle()} \n${createMessage(board)}`);
-            await respond({text: helpText, response_type: 'ephemeral'});
-            return;
-        }
-        if (ratelimit && recents.some((recent) => recent[0] === body.user_id)) {
-            await respond({
-                text: 'You can only send a message once every 29.9999999 seconds',
-                response_type: 'ephemeral',
-            });
-            return;
-        }
-
-        recents.push([body.user_id, d]);
-
         try {
-            await parsemsg(body.text, respond);
-        } catch (error) {
-            await respond({
-                text: `Zoinks, something went wrong: ${error}.\n\n${helpText}`,
-                response_type: 'ephemeral',
-            });
-            return;
-        }
+            // console.log(body);
 
-        await say(`${createTitle()} \n${createMessage(board)}`);
+            let d = new Date();
+            if (body.text == '') {
+                await respond(`${createTitle()} \n${createMessage(board)}`);
+                await respond({text: helpText, response_type: 'ephemeral'});
+                return;
+            }
+            if (
+                ratelimit &&
+                recents.some((recent) => recent[0] === body.user_id)
+            ) {
+                await respond({
+                    text: 'You can only send a message once every 29.9999999 seconds.',
+                    response_type: 'ephemeral',
+                });
+                return;
+            }
+
+            recents.push([body.user_id, d]); // TODO: copy this to the `if` so we can annoy people
+
+            try {
+                await parsemsg(body.text, respond);
+            } catch (error) {
+                await respond({
+                    text: `Zoinks, something went wrong: ${error}.\n\n${helpText}`,
+                    response_type: 'ephemeral',
+                });
+                return;
+            }
+
+            await say(`${createTitle()} \n${createMessage(board)}`);
+        } catch (e) {
+            await say(`there was a problem but i'm not fixing it fuck you`);
+            console.log(e);
+        }
     });
 
     app.command('/chaoshelp', async ({ack, respond}) => {
@@ -328,7 +325,10 @@ function updaterec() {
     app.command('/chaosflashbang', async ({body, ack, say}) => {
         await ack();
         flashtime = 5;
-        await say(createMessage(flash) + '\n-FLASHBANG- (your eyes bleed)');
+        await say(
+            createMessage(flash) +
+                '\n-FLASHBANG- (you, a programmer who has never went outside, looked directly into the sun for no reason)',
+        );
     });
 
     app.message('chaos', async ({message, say, ack}) => {
@@ -337,5 +337,3 @@ function updaterec() {
         await say(`grid`);
     });
 })();
-
-// console.log(createMessage())

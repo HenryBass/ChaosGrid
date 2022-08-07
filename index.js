@@ -14,8 +14,9 @@ const maxCols = 11;
 
 const ratelimit = true;
 
-const helpText =
-    'Please enter a cell and color in the form of `/chaosgrid <row> <col> <r> <g> <b>`';
+const helpText = `Please enter a cell and color in the form of /chaosgrid <row> <col> <r> <g> <b>\n
+    Other Commands:\n
+    /chaosflashbang (fun)`;
 
 let recents = [];
 let board = [];
@@ -45,9 +46,9 @@ function rickcolor(pixels, row, col) {
 
 function randomcolor() {
     return rgb2emoji(
-        Math.floor(Math.random() * 255),
-        Math.floor(Math.random() * 255),
-        Math.floor(Math.random() * 255),
+        Math.min(Math.floor(Math.random() * 255) + 200, 255),
+        Math.min(Math.floor(Math.random() * 255) + 200, 255),
+        Math.min(Math.floor(Math.random() * 255) + 200, 255),
     );
 }
 
@@ -79,6 +80,18 @@ function initBoard() {
 
         // console.log(board);
     });
+}
+
+function createFlash() {
+    console.log('got pixels', pixels.shape.slice());
+    board = [];
+
+    for (let i = 0; i < 26; i++) {
+        board.push([]);
+        for (let j = 0; j < 11; j++) {
+            board[i].push(randomcolor());
+        }
+    }
 }
 
 initBoard();

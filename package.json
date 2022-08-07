@@ -13,11 +13,13 @@
     "slack-bot": "^1.1.5"
   },
   "scripts": {
-    "lt": "lt --port 24569 --subdomain chaosgrid",
-    "dev": "nodemon index.js"
+    "lt": "pm2 start --attach 'lt --port 24569 --subdomain chaosgrid'",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "devDependencies": {
     "localtunnel": "^2.0.2",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "pm2": "^5.2.0"
   }
 }

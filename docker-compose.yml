@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  app:
+    image: "sconaway/chaosgrid"
+    environment:
+     - TOKEN=""
+     - SIGNING_SECRET=""
+    ports:
+      - "24569:24569" # or expose however you want
+
